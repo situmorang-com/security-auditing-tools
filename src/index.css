@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink-50:  #f7f8fb;
+  --color-ink-100: #e7eaf3;
+  --color-ink-300: #94a3b8;
+  --color-ink-400: #64748b;
+  --color-ink-500: #475569;
+  --color-ink-700: #1e293b;
+  --color-ink-800: #0f172a;
+  --color-ink-900: #0b0d12;
+  --color-accent: #818cf8;
+  --color-accent-strong: #6366f1;
+  --color-danger: #f87171;
+  --color-warn:   #fbbf24;
+  --color-ok:     #34d399;
+}
+
+html, body, #root { height: 100%; }
+
+body {
+  background:
+    radial-gradient(1200px 800px at 10% -10%, rgba(99,102,241,0.18), transparent 60%),
+    radial-gradient(900px 600px at 110% 110%, rgba(244,114,182,0.10), transparent 60%),
+    linear-gradient(180deg, #07090f 0%, #0b0d12 100%);
+}
+
+/* Custom scrollbars to feel native-app */
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.25); border-radius: 999px; }
+*::-webkit-scrollbar-thumb:hover { background: rgba(148,163,184,0.45); }
+
+/* Animated gradient border helper */
+.glow-border {
+  position: relative;
+  isolation: isolate;
+}
+.glow-border::before {
+  content: '';
+  position: absolute; inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(from var(--angle, 0deg), #6366f1, #ec4899, #22d3ee, #6366f1);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  opacity: 0.6;
+  animation: spin 6s linear infinite;
+  z-index: -1;
+}
+@property --angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+@keyframes spin { to { --angle: 360deg; } }
+
+/* Subtle "scanning" sweep used on dashboard */
+.scan-sweep {
+  background: linear-gradient(110deg, transparent 30%, rgba(129,140,248,0.18) 50%, transparent 70%);
+  background-size: 200% 100%;
+  animation: sweep 2.4s linear infinite;
+}
+@keyframes sweep { from { background-position: 200% 0; } to { background-position: -100% 0; } }

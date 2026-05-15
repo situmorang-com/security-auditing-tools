@@ -1,0 +1,14 @@
+target/
+node_modules/
+dist/
+.git/
+.github/
+.DS_Store
+*.log
+src-tauri/target/
+src-tauri/gen/
+src-tauri/icons/
+README.md
+DEPLOY.md
+.idea/
+.vscode/

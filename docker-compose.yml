@@ -1,0 +1,30 @@
+####
+# Coolify-friendly compose file for the Sentinel public showcase.
+#
+# Coolify picks up the service automatically, manages the domain + Let's
+# Encrypt via its own Traefik labels, and uses the EXPOSE'd port (7777).
+#
+# Environment variables you can override in the Coolify UI:
+#   SENTINEL_MODE         — "showcase" (default) | "full"
+#   RUST_LOG              — log filter, e.g. "info,tower_http=warn"
+####
+services:
+  sentinel:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sentinel:latest
+    restart: unless-stopped
+    environment:
+      SENTINEL_MODE: ${SENTINEL_MODE:-showcase}
+      SENTINEL_BIND: 0.0.0.0:7777
+      SENTINEL_STATIC_DIR: /app/dist
+      RUST_LOG: ${RUST_LOG:-info,tower_http=warn}
+    expose:
+      - "7777"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:7777/api/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s

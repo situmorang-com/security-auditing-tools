@@ -1,0 +1,34 @@
+[package]
+name = "audit-app"
+version.workspace = true
+edition.workspace = true
+description = "Stunning security auditing desktop app"
+default-run = "audit-app"
+
+[lib]
+name = "audit_app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-shell = "2"
+tauri-plugin-dialog = "2"
+audit-core.workspace = true
+audit-orchestrator.workspace = true
+audit-scanners.workspace = true
+audit-reporter.workspace = true
+audit-tips.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+anyhow.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+chrono.workspace = true
+
+[[bin]]
+name = "audit-app"
+path = "src/main.rs"
