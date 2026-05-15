@@ -17,17 +17,30 @@ In showcase mode the audit endpoints (`/api/preflight`, `/api/audit`, `/api/repo
 - `docker-compose.yml` — declares the service, env vars, healthcheck. Coolify picks this up.
 - `.dockerignore` — keeps `target/`, `node_modules/`, Tauri artifacts out of build context.
 
+## How builds work
+
+The image is built by **GitHub Actions** ([.github/workflows/docker.yml](.github/workflows/docker.yml)) on every push to `main`, then published to **GHCR** as:
+
+```
+ghcr.io/situmorang-com/security-auditing-tools:latest
+ghcr.io/situmorang-com/security-auditing-tools:sha-<short>
+```
+
+Coolify **pulls** that image — it does not build anything itself. This avoids OOM-killing the cargo release build on small VPSes (the original failure we hit) and gives near-instant deploys (~10 s vs ~3 min).
+
 ## Coolify setup (one-time)
 
-1. **Create a new resource** in Coolify → **Docker Compose** → connect this repo.
-2. **Build pack**: leave on `dockerfile` / `docker-compose.yml` (Coolify auto-detects).
-3. **Domain**: set to `security.situmorang.com`. Coolify provisions a Let's Encrypt cert automatically. The reverse proxy targets the service's exposed port (`7777`).
-4. **Environment variables** (Coolify UI → Environment):
-   - `SENTINEL_MODE=showcase` (this is also the Dockerfile default — explicit > implicit)
+1. In Coolify → **Add Resource → Docker Compose** → pick this repo's `docker-compose.yml`. Alternatively, **Add Resource → Docker Image** and paste the GHCR URL directly — Coolify supports both.
+2. **Domain**: `security.situmorang.com`. Coolify provisions Let's Encrypt automatically. Reverse proxy targets the EXPOSE'd port (`7777`).
+3. **Environment** (defaults in compose file are correct):
+   - `SENTINEL_MODE=showcase`
    - `RUST_LOG=info,tower_http=warn` (optional)
-5. **DNS**: point `security.situmorang.com` A/AAAA at your Coolify host's IP (or set the CNAME if you proxy through Cloudflare etc.). Wait for propagation, then click **Deploy** in Coolify.
+4. **DNS**: point `security.situmorang.com` A/AAAA at your Coolify host's IP.
+5. Click **Deploy**. Coolify pulls the latest image. First pull is ~80 MB.
 
-That's it. First build takes ~3 min (Rust + npm caches warm up on subsequent deploys). Healthcheck pings `/api/health` every 30s — Coolify will mark the service Unhealthy if the binary stops responding.
+## Updating
+
+Push to `main` → GHA builds + publishes a new `:latest` → click **Redeploy** in Coolify (or enable auto-redeploy on image change). The `pull_policy: always` in the compose file ensures a fresh pull on every redeploy.
 
 ## Verifying the deployment is safe
 

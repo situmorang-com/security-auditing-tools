@@ -1,19 +1,20 @@
 ####
-# Coolify-friendly compose file for the Sentinel public showcase.
+# Coolify deployment: pulls the pre-built image from GHCR.
 #
-# Coolify picks up the service automatically, manages the domain + Let's
-# Encrypt via its own Traefik labels, and uses the EXPOSE'd port (7777).
+# Image is published by .github/workflows/docker.yml on every push to main.
+# Coolify reads this compose file, pulls the image, wires its reverse proxy
+# (Traefik) to the EXPOSE'd port (7777), and manages the TLS cert.
 #
-# Environment variables you can override in the Coolify UI:
-#   SENTINEL_MODE         — "showcase" (default) | "full"
-#   RUST_LOG              — log filter, e.g. "info,tower_http=warn"
+# To build/run locally instead of pulling, comment out `image:` and uncomment
+# the `build:` block below.
 ####
 services:
   sentinel:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: sentinel:latest
+    image: ghcr.io/situmorang-com/security-auditing-tools:latest
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    pull_policy: always
     restart: unless-stopped
     environment:
       SENTINEL_MODE: ${SENTINEL_MODE:-showcase}
