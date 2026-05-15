@@ -47,12 +47,15 @@ COPY --from=ui-builder   /ui/dist /app/dist
 RUN chown -R sentinel:sentinel /app
 
 USER sentinel
-ENV SENTINEL_BIND=0.0.0.0:7777 \
+# Coolify (and many PaaSes) inject PORT into the container's environment to
+# tell apps which port to listen on. Honor it; fall back to 7777 if unset.
+ENV PORT=7777 \
     SENTINEL_STATIC_DIR=/app/dist \
     SENTINEL_MODE=showcase \
     RUST_LOG=info,tower_http=warn
 
 EXPOSE 7777
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s \
-  CMD wget -qO- http://127.0.0.1:7777/api/health || exit 1
-CMD ["audit-server"]
+  CMD wget -qO- "http://127.0.0.1:${PORT}/api/health" || exit 1
+# Shell form so ${PORT} is expanded at container start.
+CMD audit-server --bind "0.0.0.0:${PORT}"

@@ -18,13 +18,14 @@ services:
     restart: unless-stopped
     environment:
       SENTINEL_MODE: ${SENTINEL_MODE:-showcase}
-      SENTINEL_BIND: 0.0.0.0:7777
       SENTINEL_STATIC_DIR: /app/dist
       RUST_LOG: ${RUST_LOG:-info,tower_http=warn}
+      # PORT is honored by the server; Coolify injects PORT=3000 automatically.
+      # For local docker-compose without Coolify, defaults to 7777.
     expose:
-      - "7777"
+      - "${PORT:-7777}"
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:7777/api/health"]
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:${PORT:-7777}/api/health || exit 1"]
       interval: 30s
       timeout: 3s
       retries: 3
